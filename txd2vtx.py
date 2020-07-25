@@ -7,8 +7,6 @@ def bake_texture(obj, uv_set='map1', map_size=1024, filename=None):
     filename = filename or tempfile.mktemp()
     filename = os.path.splitext(filename)[0]
     mel.surfaceSampler(target=obj, uvSet=uv_set,
-                       #        searchOffset=0.1, maxSearchDistance=0,
-                       #    searchCage "pSphere1|pSphereShape1Envelope|pSphereShape1EnvelopeShape"
                        source=obj, mapOutput='diffuseRGB', mapWidth=map_size, mapHeight=map_size,
                        max=1, mapSpace='tangent',
                        mapMaterials=1, shadows=0,
