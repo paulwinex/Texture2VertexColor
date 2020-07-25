@@ -54,7 +54,7 @@ def _delete_file(file_node):
         os.remove(file_node.fileTextureName.get())
     except:
         pass
-    delete(file_node.inputs())
+    delete(file_node.inputs(type=nt.Place2dTexture))
     delete(file_node)
 
 
@@ -77,6 +77,7 @@ def transfer_diffuse_to_vertex_color(obj, set_name, uv_set='map1', map_size=1024
 def bake_selected():
     sel = selected(transforms=True)
     if not sel:
+        PopupError('Objects not selected')
         return
     if not promptDialog(
         title='Bake Diffuse To Vertex Color',
