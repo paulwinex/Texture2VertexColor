@@ -6,7 +6,9 @@ Maya script for bake texture diffuse component to vertex color.
 
 Put file ``txd2vtx.py`` to PYTHONPATH
 
-## Use
+## Usage
+
+### Bake texture
 
 From code
 
@@ -20,4 +22,18 @@ Shelf button
 ```python
 import txd2vtx
 txd2vtx.bake_selected()
+```
+
+### Prelight
+
+```python
+import txd2vtx
+txd2vtx.prelight_object(obj, 'clr_set_name')
+```
+
+Shelf button
+
+```python
+import txd2vtx
+txd2vtx.prelight_selcted()
 ```

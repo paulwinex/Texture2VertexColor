@@ -35,8 +35,8 @@ def create_color_set(obj, set_name, representation='RGB'):
     cs = polyColorSet(obj, query=1, allColorSets=1) or []
     if set_name not in cs:
         polyColorSet(obj, create=1, clamped=1, rpt=representation, colorSet=set_name)
-        polyColorSet(obj, currentColorSet=1, colorSet=set_name)
-    polyColorPerVertex(obj, colorDisplayOption=1)
+    polyColorSet(obj, currentColorSet=1, colorSet=set_name)
+    # polyColorPerVertex(obj, colorDisplayOption=1)
 
 
 def apply_api_colors(colors, indices, obj):
@@ -91,4 +91,65 @@ def bake_selected():
     for obj in sel:
         transfer_diffuse_to_vertex_color(obj, setname)
 
-# bake_selected()
+# PREVILGT ##############################################################
+
+
+def rename_color_set(obj, new_name, old_name=None):
+    import difflib
+    old_name = old_name or 'colorSet1'
+    all_sets = polyColorSet(obj, query=1, allColorSets=1)
+    if not all_sets:
+        return
+    curr = difflib.get_close_matches(old_name, all_sets)
+    if not curr:
+        print('Color set not renamed')
+        return
+    polyColorSet(obj, rename=True, colorSet=old_name, newColorSet=new_name)
+
+
+def prelight_object(obj, set_name):
+    obj = PyNode(obj)
+    with PrelightSetup():
+        print('Start bake')
+        mel.polyGeoSampler(obj, ids=True, su=True, cdo=True, colorBlend="overwrite", alphaBlend="overwrite")
+        print('Rename color set')
+        rename_color_set(obj, set_name)
+
+
+class PrelightSetup(object):
+    def __init__(self):
+        self.objs = []
+
+    def __enter__(self):
+        print('Setup Lights')
+        lst1 = ls(type='ambientLight')
+        mel.CreateAmbientLight()
+        lst2 = ls(type='ambientLight')
+        al = list(set(lst2).difference(set(lst1)))[0]
+        # mel.sets("ambientLight1", e=1, add= "defaultLightSet")
+        dl = createNode('directionalLight')
+        dl.intensity.set(0)
+        self.objs.append(al.getTransform())
+        self.objs.append(dl.getTransform())
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        print('Cleanup Lights')
+        delete(self.objs)
+
+
+def prelight_selcted():
+    sel = selected(transforms=True)
+    if not sel:
+        PopupError('Objects not selected')
+        return
+    if not promptDialog(
+        title='Bake Diffuse To Vertex Color',
+        message='Enter Vertex Set Name:',
+        button=['OK', 'Cancel'],
+        defaultButton='OK',
+        cancelButton='Cancel',
+        dismissString='Cancel') == 'OK':
+        return
+    setname = promptDialog(query=True, text=True)
+    for obj in sel:
+        prelight_object(obj, setname)
