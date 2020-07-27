@@ -26,6 +26,8 @@ txd2vtx.bake_selected()
 
 ### Prelight
 
+From code
+
 ```python
 import txd2vtx
 txd2vtx.prelight_object(obj, 'clr_set_name')
